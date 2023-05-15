@@ -23,7 +23,7 @@ conexion.connect((error) => {
 
 // Obtener todos los posts
 app.get('/api/posts', (req, res) => {
-    const sql = 'SELECT *,  autores.nombre AS autor_nombre, autores.email AS autor_email, autores.imagen AS autor_imagen FROM posts JOIN autores ON posts.id_autor';
+    const sql = 'SELECT *,  autores.nombre AS autor_nombre, autores.email AS autor_email, autores.imagen AS autor_imagen FROM posts JOIN autores';
 
     //, autores.nombre, autores.email, autores.imagen  JOIN autores ON posts.id_autor
 
@@ -34,6 +34,20 @@ app.get('/api/posts', (req, res) => {
             return;
         }
         res.status(200).json({ posts: results });
+    });
+});
+
+// Obtener todos los autores
+app.get('/api/autores', (req, res) => {
+    const sql = 'SELECT * FROM autores';
+
+    conexion.query(sql, (error, results) => {
+        if(error) {
+            console.log('Error retrieving autores:', error);
+            res.status(500).json({ message: 'Error retrieving autores' });
+            return;
+        }
+        res.status(200).json({ autores: results });
     });
 });
 
@@ -53,6 +67,24 @@ app.post('/api/posts', (req, res) => {
 
         const newPost = { id: result.insertId, titulo, descripcion, categoria, id_autor };
         res.status(201).json({ post: newPost });
+    });
+});
+
+// Creación de un autor
+app.post('/api/autor', (req, res) => {
+    const { titulo, descripcion, categoria, id_autor } = req.body;
+
+    const sql = 'INSERT INTO posts (titulo, descripcion, categoria, id_autor) VALUES (?, ?, ?, ?);'
+
+    conexion.query(sql, [titulo, descripcion, categoria, id_autor], (error, result) => {
+        if (error) {
+            console.log('Error creando el autor:', error);
+            res.status(500).json({ message: 'Error creando el autor' });
+            return;
+        }
+
+        const newPost = { id: result.insertId, titulo, descripcion, categoria, id_autor };
+        res.status(201).json({ autor: newAutor });
     });
 });
 
